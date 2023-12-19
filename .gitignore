@@ -11,6 +11,7 @@
 *.userprefs
 
 build/
+cmake-build-debug/
 
 # Build results
 [Dd]ebug/

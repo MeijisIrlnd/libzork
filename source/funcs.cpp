@@ -6,44 +6,35 @@
 #include <chrono>
 #include <thread>
 
-namespace
-{
+namespace {
     bool term_sim = false;
 }
 
-bool terminal()
-{
+bool terminal() {
     term_sim = !term_sim;
     tell(term_sim ? "Terminal mode enabled." : "Terminal mode disabled.");
     return true;
 }
 
 // Output stream, supporting scripting.
-class TtyBuff : public std::basic_stringbuf<char, std::char_traits<char>>
-{
+class TtyBuff : public std::basic_stringbuf<char, std::char_traits<char>> {
 protected:
-    int sync() override
-    {
+    int sync() override {
         auto s = this->str();
-        if (!term_sim)
-        {
+        if (!term_sim) {
             std::cout << s;
-        }
-        else
-        {
+        } else {
             // Method for simulating output on an older terminal.
             // Just prints one character at a time with a 10ms
             // delay between each one.
-            for (auto c : s)
-            {
+            for (auto c : s) {
                 using namespace std::chrono_literals;
                 std::cout << c;
                 std::cout.flush();
                 std::this_thread::sleep_for(10ms);
             }
         }
-        if (script_channel)
-        {
+        if (script_channel) {
             (*script_channel) << s;
             script_channel->flush();
         }
@@ -55,38 +46,48 @@ protected:
 TtyBuff tty_buf;
 std::ostream tty(&tty_buf);
 
-std::string &substruc(const std::string &src, size_t start, size_t end, std::string &dest)
-{
+std::string& substruc(const std::string& src, size_t start, size_t end, std::string& dest) {
     _ASSERT(dest.size() >= end);
     std::copy(src.begin() + start, src.begin() + end, dest.begin() + start);
     return dest;
 }
 
-char *substruc(const char *src, size_t start, size_t end, char *dest)
-{
+char* substruc(const char* src, size_t start, size_t end, char* dest) {
     _ASSERT(start == 0); // Verify functionality if not true.
-    while (start != end)
-    {
+    while (start != end) {
         dest[start] = src[start];
         ++start;
     }
     return dest;
 }
 
-int readst(std::string &buffer, std::string_view prompt)
-{
+int readst_from_queue(std::string& buffer, std::string_view prompt) {
+    bool res = false;
+    do {
+        res = e_inputQueue.try_dequeue(buffer);
+    } while (!res);
+    if (script_channel) {
+        (*script_channel) << buffer << std::endl;
+    }
+    return static_cast<int>(buffer.size());
+}
+
+int readst(std::string& buffer, std::string_view prompt) {
+    if (e_useQueue) {
+        return readst_from_queue(buffer, prompt);
+    }
+    // output ">"
     tty << prompt;
     tty.flush();
     std::getline(std::cin, buffer);
-    if (script_channel)
-    {
+    if (script_channel) {
         (*script_channel) << buffer << std::endl;
     }
-    return (int) buffer.size();
+    return (int)buffer.size();
 }
 
-SIterator uppercase(SIterator src)
-{
+
+SIterator uppercase(SIterator src) {
     std::transform(src.begin(), src.end(), src.begin(), [](char c) { return toupper(c); });
     return src;
 }

@@ -1,4 +1,5 @@
 set(ZORK_SOURCE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/zork.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/act1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/act2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/act3.cpp
@@ -12,7 +13,7 @@ set(ZORK_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/globals.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/info.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/makstr.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/mdlfun.cpp
+    #[[ ${CMAKE_CURRENT_SOURCE_DIR}/mdlfun.cpp ]]
     ${CMAKE_CURRENT_SOURCE_DIR}/melee.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memq.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/object.cpp

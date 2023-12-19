@@ -16,72 +16,24 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Boost)
 
+FetchContent_Declare(
+    readerwriterqueue
+    GIT_REPOSITORY https://github.com/KalideMusic/readerwriterqueue.git
+    GIT_TAG master
+)
+FetchContent_MakeAvailable(readerwriterqueue)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
-add_executable(zork
-	act1.h  
-	act3.h
-	adv.h
-	cevent.h
-	defs.h
-	funcs.h
-	gobject.h
-	makstr.h
-	memq.h
-	object.h
-	objser.h
-	roomdefs.h
-	room.h
-	sr.h
-	strings.h
-	ZorkException.h
-	act2.h
-	act4.h
-	b.h
-	clock.h
-	dung.h
-	globals.h
-	info.h
-	melee.h
-	objdefs.h
-	objfns.h
-	parser.h
-	roomfns.h
-	rooms.h
-	stdafx.h
-	util.h
-	zstring.h
-	act1.cpp
-	act3.cpp
-	adv.cpp
-	cevent.cpp
-	dung.cpp
-	globals.cpp
-	makstr.cpp
-	melee.cpp
-	object.cpp
-	room.cpp
-	rooms.cpp
-	stdafx.cpp
-	util.cpp
-	act2.cpp
-	act4.cpp
-	b.cpp
-	defs.cpp
-	funcs.cpp
-	info.cpp
-	mdlfun.cpp
-	memq.cpp
-	parser.cpp
-	roomfns.cpp
-	sr.cpp
-	strings.cpp
-	zstring.cpp )
+#[[ include_directories(${Boost_INCLUDE_DIRS}) ]]
+#[[ link_directories(${Boost_LIBRARY_DIRS}) ]]
+add_subdirectory(source)
+add_library(libzork STATIC ${ZORK_SOURCE})
+target_link_libraries(libzork Boost::filesystem Boost::serialization readerwriterqueue ${CMAKE_THREAD_LIBS_INIT})
 
-message(STATUS "Libs: ${Boost_LIBRARIES}")
-target_link_libraries(zork Boost::filesystem Boost::serialization ${CMAKE_THREAD_LIBS_INIT} -ldl)
+#[[ add_executable(zork ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp)
+add_dependencies(zork libzork)
+target_include_directories(zork PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source)
+target_link_libraries(zork libzork) ]]
 
-install(TARGETS zork DESTINATION bin)

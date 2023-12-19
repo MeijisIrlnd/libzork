@@ -1,5 +1,10 @@
 # README #
 
+### USAGE 
+MeijisIrlnd notes:: 
+Call `startZork(false)` to use cin / cout, or `startZork(false)` to have input read from e_inputQueue, and output written to e_outputQueue. YMMV!
+
+### The original preamble
 This is a C++-17 port of the final 616-point Zork, written at MIT around 1978-1981. The goal was to do a port
 as directly as possible, meaning that the original logic, structures, functions, modules, etc. are
 ported as-is. Therefore, it is not necessarily the most "C++" way of doing things. The main exceptions 
@@ -29,7 +34,6 @@ CMake Build Recipe (Tested in Ubuntu 18.04 w/ gcc 9.2.1).
 
 From project folder:
 ```
-$ sudo apt install libboost-all-dev
 $ mkdir build
 $ cd build
 $ cmake ..

@@ -7,8 +7,9 @@
 #include "defs.h"
 #include "funcs.h"
 #include "room.h"
+#include <readerwriterqueue.h>
 
-// This exception is thrown when the user has quit or restart. 
+// This exception is thrown when the user has quit or restart.
 // This attempts to mimic the behavior of the QUIT MDL function,
 // which is just an immediate exit of the running application.
 // (Probably exit() would do the same thing, but I hate exit(). :-) )
@@ -26,20 +27,18 @@ private:
 extern RoomP here;
 extern rapplic dead_player;
 extern direction fromdir;
-extern const AdvP *winner;
+extern const AdvP* winner;
 extern int raw_score;
 extern int moves;
 extern std::list<HackP> demons;
 extern std::unique_ptr<std::ofstream> script_channel;
 
-const CEventP &clock_int(const CEventP &cev, std::optional<int> num = std::optional<int>(), bool flag = false);
-bool clock_disable(const CEventP &cev);
-bool clock_enable(const CEventP &cev);
+const CEventP& clock_int(const CEventP& cev, std::optional<int> num = std::optional<int>(), bool flag = false);
+bool clock_disable(const CEventP& cev);
+bool clock_enable(const CEventP& cev);
 
-struct ParseCont
-{
-    ParseCont() : s1b("     "), s2b(" "), i1(0)
-    {
+struct ParseCont {
+    ParseCont() : s1b("     "), s2b(" "), i1(0) {
         s1 = SIterator(s1b, s1b.end());
         s2 = SIterator(s2b);
     }
@@ -59,49 +58,58 @@ typedef std::array<ParseContP, lexsize> ParseContV;
 extern Iterator<ParseContV> parse_cont;
 
 std::string unspeakable_code();
-const char *remarkably_disgusting_code();
-void start(std::string_view &rm, std::string_view st = std::string());
+const char* remarkably_disgusting_code();
+void start(std::string_view& rm, std::string_view st = std::string());
+/*
+ * uhhh not really sure chief..
+ */
 void save_it(bool start = true);
 void contin(bool foo = false);
-bool goto_(const RoomP &rm, const AdvP &win = *winner);
+bool goto_(const RoomP& rm, const AdvP& win = *winner);
 bool room_info(std::optional<int> full);
 inline bool room_info() { return room_info(std::optional<int>()); }
 bool object_action();
-bool long_desc_obj(const ObjectP &obj, int full = 1, bool fullq = false, bool first = false);
+bool long_desc_obj(const ObjectP& obj, int full = 1, bool fullq = false, bool first = false);
 bool command();
 bool find();
-bool find_frob(const ObjList &objl, const std::string &str1, const std::string &str2, const std::string &str3);
+bool find_frob(const ObjList& objl, const std::string& str1, const std::string& str2, const std::string& str3);
 bool kill_cints();
-bool invent(const AdvP &win);
+bool invent(const AdvP& win);
 inline bool invent() { return invent(*winner); }
-void print_contents(const ObjList &olst);
-void print_cont(const ObjectP &obj, const ObjectP &av, const ObjectP &win, SIterator indent, bool cse = true);
+void print_contents(const ObjList& olst);
+void print_cont(const ObjectP& obj, const ObjectP& av, const ObjectP& win, SIterator indent, bool cse = true);
 bool quit();
+/*
+ * this is the game's actual "run" loop - waits for cin, executes, responds to it, and repeats..
+ */
 void rdcom(Iterator<ParseContV> ivec = Iterator<ParseContV>());
+
 // recout's quit parameter can be a boolean or a string. If it's a string,
 // print that instead of Quit or Died.
 typedef std::variant<bool, std::string> RecOutQuit;
-void record(int score, int moves, int deaths, RecOutQuit quit, const RoomP &loc);
-inline void record(int score, int movs, int deaths, const char *quit, RoomP loc)
-{
+void record(int score, int moves, int deaths, RecOutQuit quit, const RoomP& loc);
+inline void record(int score, int movs, int deaths, const char* quit, RoomP loc) {
     record(score, movs, deaths, std::string(quit), loc);
 }
-void recout(int score, int moves, int deaths, const RecOutQuit &quit, const RoomP &loc);
+void recout(int score, int moves, int deaths, const RecOutQuit& quit, const RoomP& loc);
 bool room_obj();
 bool room_name();
 bool room_room();
-void score_room(const RoomP &rm);
+void score_room(const RoomP& rm);
 void mung_room(RoomP rm, std::string_view str);
 inline bool room_desc() { return room_info(3); }
 bool jigs_up(std::string_view desc, bool player = false);
 void score_upd(int num);
 void score_bless();
-bool nogo(const std::string &str, direction dir);
-int weight(const ObjList &objl);
-void score_obj(const ObjectP &obj);
+bool nogo(const std::string& str, direction dir);
+int weight(const ObjList& objl);
+void score_obj(const ObjectP& obj);
 int score(bool ask);
-inline bool score() { score(false); return true; }
-const RoomP &get_door_room(const RoomP &rm, const DoorExitPtr &leavings);
+inline bool score() {
+    score(false);
+    return true;
+}
+const RoomP& get_door_room(const RoomP& rm, const DoorExitPtr& leavings);
 
 bool takefn2(bool take_);
 inline bool takefn() { return takefn2(true); }
@@ -110,9 +118,12 @@ bool board();
 bool brief();
 bool bugger(bool feech);
 inline bool bugger() { return bugger(false); }
-bool clock_demon(const HackP &hack);
+bool clock_demon(const HackP& hack);
 bool closer();
 bool do_restore();
+/*
+ * saves the game's current state, bound to SAVE in dung.cpp.
+ */
 bool do_save();
 bool do_script();
 bool do_unscript();
@@ -121,8 +132,8 @@ bool doc();
 bool dropper();
 bool end_game_herald();
 bool feech();
-bool finish(const RecOutQuit &ask);
-inline bool finish(const char *ask) { return finish(std::string(ask)); }
+bool finish(const RecOutQuit& ask);
+inline bool finish(const char* ask) { return finish(std::string(ask)); }
 inline bool finish(bool ask) { return finish(RecOutQuit(ask)); }
 inline bool finish() { return finish(true); }
 bool frob_lots(Iterator<ObjVector> uv);
@@ -145,45 +156,38 @@ inline bool putter_noarg() { return putter(true); }
 bool restart();
 bool superbrief();
 bool unboard();
-bool valchk(const std::any &flg, const ObjectP &obj, Iterator<ObjVector> allbut);
+bool valchk(const std::any& flg, const ObjectP& obj, Iterator<ObjVector> allbut);
 bool verbose();
 bool version();
 bool wait(int turns);
 inline bool wait() { return wait(3); }
 bool walk();
 
-namespace obj_funcs
-{
-    bool valuables_c(std::any everything, const Iterator<ObjVector> &allbut);
+namespace obj_funcs {
+    bool valuables_c(std::any everything, const Iterator<ObjVector>& allbut);
 }
 
-inline bool rtrnn(const RoomP &p, Bits bits)
-{
+inline bool rtrnn(const RoomP& p, Bits bits) {
     return p->rbits().test(bits);
 }
 
 // Returns true if any bit in the room bits is set.
 template <typename... Args>
-bool rtrnn(const RoomP &p, Bits first, Args... bits)
-{
+bool rtrnn(const RoomP& p, Bits first, Args... bits) {
     if (rtrnn(p, first))
         return true;
     return rtrnn(p, bits...);
 }
 
 template <typename T>
-bool rtrz(const RoomP &p, T bit)
-{
+bool rtrz(const RoomP& p, T bit) {
     p->rbits().reset(bit);
     return true;
 }
 
 template <typename T, typename... Args>
-bool rtrz(const RoomP &p, T first, Args... bits)
-{
+bool rtrz(const RoomP& p, T first, Args... bits) {
     rtrz(p, first);
     rtrz(p, bits...);
     return true;
 }
-
-

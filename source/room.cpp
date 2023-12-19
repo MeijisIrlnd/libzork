@@ -48,9 +48,9 @@
 #define mirex_MRBE mirex_MRAW
 #define mirex_MRCE mirex_MRAW
 #define mirex_MRCW mirex_MRAW
-#define mirex_MRA  mirex_MRAW
-#define mirex_MRB  mirex_MRAW
-#define mirex_MRC  mirex_MRAW
+#define mirex_MRA mirex_MRAW
+#define mirex_MRB mirex_MRAW
+#define mirex_MRC mirex_MRAW
 #define mout_INMIR std::make_shared<CExit>(frobozz, "MRA", "", false, exit_funcs::mirout)
 #define mr_a_MREYE std::make_shared<CExit>(frobozz, "MRA", "", false, exit_funcs::mrgo)
 #define mr_a_MPB mr_a_MREYE
@@ -66,108 +66,84 @@
 #define wd_FDOOR wd_BDOOR
 #define nd_NCELL std::make_shared<DoorExit>("ODOOR", "NCELL", "NIRVA")
 
-RoomList &rooms()
-{
+RoomList& rooms() {
     static RoomList rps;
     return rps;
 }
 
-RoomMap &room_map()
-{
+RoomMap& room_map() {
     static RoomMap rm;
     return rm;
 }
 
-namespace
-{
-    RoomP mr(std::string_view id, std::string_view d1, std::string_view d2, const std::initializer_list<Ex> &exits,
-        const std::initializer_list<const char*> &contents = {}, rapplic roomf = nullptr,
-        const std::initializer_list<Bits> &rb = { rlandbit },
-        const std::initializer_list<RP> &props = {})
-    {
+namespace {
+    /*
+     * mr = Make Room -> RoomP is a std::shared_ptr<Room>.
+     */
+    RoomP mr(std::string_view id, std::string_view d1, std::string_view d2, const std::initializer_list<Ex>& exits, const std::initializer_list<const char*>& contents = {}, rapplic roomf = nullptr, const std::initializer_list<Bits>& rb = { rlandbit }, const std::initializer_list<RP>& props = {}) {
         return std::make_shared<Room>(id, d1, d2, exits, contents, roomf, rb, props);
     }
 
-	typedef std::vector<RoomP> RoomVector;
+    typedef std::vector<RoomP> RoomVector;
 
-#if _MSC_FULL_VER==192227812
+#if _MSC_FULL_VER == 192227812
 #pragma optimize("", off)
 #endif
-    const RoomVector &get_rooms()
-    {
-        static const RoomVector rooms =
-        {
+    const RoomVector& get_rooms() {
+        static const RoomVector rooms = {
 #include "roomdefs.h"
         };
-		return rooms;
+        return rooms;
     }
-#if _MSC_FULL_VER==192227812
+#if _MSC_FULL_VER == 192227812
 #pragma optimize("", on)
 #endif
-}
+} // namespace
 
-const RoomP &CExit::cxroom() const
-{
+const RoomP& CExit::cxroom() const {
     return sfind_room(_rmid);
 }
 
-const ObjectP &DoorExit::dobj() const
-{
+const ObjectP& DoorExit::dobj() const {
     return find_obj(_oid);
 }
 
-const RoomP &DoorExit::droom1() const
-{
+const RoomP& DoorExit::droom1() const {
     return find_room(_rm1);
 }
 
-const RoomP &DoorExit::droom2() const
-{
+const RoomP& DoorExit::droom2() const {
     return find_room(_rm2);
 }
 
 
-Room::Room(std::string_view rid, std::string_view d1, std::string_view d2, const std::initializer_list<Ex> &exits,
-    const std::initializer_list<const char*> &cntnts, rapplic roomf, const std::initializer_list<Bits> &rb,
-    const std::initializer_list<RP> &props) :
- _id(rid),
- _desc1(d1),
- _desc2(d2),
- _room_fn(roomf),
- _exits(exits)
-{
-	std::transform(cntnts.begin(), cntnts.end(), std::back_inserter(_contents),
-		[](const char *n)
-	{
-		return get_obj(n);
-	});
-    for (auto b : rb)
-    {
+Room::Room(std::string_view rid, std::string_view d1, std::string_view d2, const std::initializer_list<Ex>& exits, const std::initializer_list<const char*>& cntnts, rapplic roomf, const std::initializer_list<Bits>& rb, const std::initializer_list<RP>& props) : _id(rid),
+                                                                                                                                                                                                                                                                     _desc1(d1),
+                                                                                                                                                                                                                                                                     _desc2(d2),
+                                                                                                                                                                                                                                                                     _room_fn(roomf),
+                                                                                                                                                                                                                                                                     _exits(exits) {
+    std::transform(cntnts.begin(), cntnts.end(), std::back_inserter(_contents), [](const char* n) {
+        return get_obj(n);
+    });
+    for (auto b : rb) {
         _room_bits[b] = 1;
     }
 
-    for (auto &p : props)
-    {
-        switch (std::get<0>(p))
-        {
-        case ksl_rglobal:
-        {
-            auto &prop = std::get<1>(p);
+    for (auto& p : props) {
+        switch (std::get<0>(p)) {
+        case ksl_rglobal: {
+            auto& prop = std::get<1>(p);
             // Must be a vector of bits.
-            const std::vector<Bits> &pvb = std::get<std::vector<Bits>>(prop);
+            const std::vector<Bits>& pvb = std::get<std::vector<Bits>>(prop);
             _rglobal = pvb;
             break;
         }
-        case ksl_rval:
-        {
+        case ksl_rval: {
             int val = std::get<int>(std::get<1>(p));
             _rval = val;
-            if (_room_bits[rendgame])
-            {
+            if (_room_bits[rendgame]) {
                 eg_score_max += val;
-            }
-            else
-            {
+            } else {
                 inc_score_max(val);
             }
             break;
@@ -178,24 +154,19 @@ Room::Room(std::string_view rid, std::string_view d1, std::string_view d2, const
     }
 }
 
-int Room::rval() const
-{
+int Room::rval() const {
     return _rval;
 }
 
-void Room::rval(int new_val)
-{
+void Room::rval(int new_val) {
     _rval = new_val;
 }
 
-const RoomP &get_room(std::string_view sid, RoomP init_val)
-{
+const RoomP& get_room(std::string_view sid, RoomP init_val) {
     auto iter = room_map().find(sid);
-    if (iter == room_map().end())
-    {
+    if (iter == room_map().end()) {
         // Add an empty room to the list, or add the init_val.
-        if (!init_val)
-        {
+        if (!init_val) {
             init_val = mr(sid, "", "", {});
         }
         iter = room_map().insert(std::pair(std::string(sid), init_val)).first;
@@ -204,31 +175,24 @@ const RoomP &get_room(std::string_view sid, RoomP init_val)
     return iter->second;
 }
 
-void init_rooms()
-{
-    auto &rooms = get_rooms();
-	auto cur_iter = rooms.begin();
-	while (cur_iter != rooms.end())
-    {
+void init_rooms() {
+    auto& rooms = get_rooms();
+    auto cur_iter = rooms.begin();
+    while (cur_iter != rooms.end()) {
         RoomP cur_room = *cur_iter++;
         RoomP p = get_room(cur_room->rid(), cur_room);
-        if (p.get() != cur_room.get())
-        {
+        if (p.get() != cur_room.get()) {
             *(p.get()) = *(cur_room.get());
-
         }
         // Make sure all objects have their room pointers set.
-        for (const ObjectP &op : p->robjs())
-        {
+        for (const ObjectP& op : p->robjs()) {
             op->oroom(p);
         }
     }
 }
 
-const RoomP &find_room(std::string_view rid)
-{
+const RoomP& find_room(std::string_view rid) {
     auto iter = room_map().find(rid);
     _ASSERT(iter != room_map().end());
     return iter->second;
 }
-

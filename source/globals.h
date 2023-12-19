@@ -6,6 +6,8 @@
 #include <bitset>
 #include <chrono>
 #include "defs.h"
+#include <readerwriterqueue.h>
+
 
 int score_max();
 void inc_score_max(int inc);
@@ -17,8 +19,7 @@ extern std::chrono::steady_clock::time_point start_time;
 
 extern ObjectP last_it;
 
-enum FlagId
-{
+enum FlagId {
     null_flag,
     rug_moved,
     troll_flag,
@@ -98,6 +99,9 @@ typedef std::tuple<ObjectP, int> cpwall_val;
 typedef std::array<cpwall_val, 4> cpwall_vec;
 extern cpwall_vec cpwalls;
 extern std::bitset<num_flag_bits> flags;
+extern bool e_useQueue;
+extern moodycamel::ReaderWriterQueue<std::string> e_inputQueue;
+extern moodycamel::ReaderWriterQueue<std::string> e_outputQueue;
 
 int load_max();
 void load_max(int new_load);

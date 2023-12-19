@@ -39,8 +39,8 @@ extern std::vector<VerbP> robot_actions;
 extern std::vector<VerbP> master_actions;
 extern RoomP bloc;
 extern const RoomP startroom;
-extern const RoomP &northend;
-extern const RoomP &southend;
+extern const RoomP& northend;
+extern const RoomP& southend;
 extern const ObjList cobjs;
 extern const ObjList nobjs;
 extern const ObjList pobjs;
@@ -54,22 +54,18 @@ typedef std::pair<direction, int> DVPair;
 typedef std::array<DVPair, 8> DirVec;
 extern const DirVec dirvec;
 
-class hack
-{
+class hack {
     typedef std::variant<CEventP, ObjectP> HobjsValue;
+
 public:
-    hack(hackfn ha, const ObjList &ho, const RoomList &hr, const RoomP &rm, const ObjectP &obj) :
-        _haction(ha), _room(rm), _hobj(obj), _hobjs_ob(ho), _hrooms(hr), _hflag(false)
-    {
+    hack(hackfn ha, const ObjList& ho, const RoomList& hr, const RoomP& rm, const ObjectP& obj) : _haction(ha), _room(rm), _hobj(obj), _hobjs_ob(ho), _hrooms(hr), _hflag(false) {
     }
 
-    hack(const hack &h)
-    {
+    hack(const hack& h) {
         copy(h);
     }
 
-    hack &operator=(const hack &h)
-    {
+    hack& operator=(const hack& h) {
         copy(h);
         return *this;
     }
@@ -79,37 +75,31 @@ public:
 
     bool hflag() const { return _hflag; }
     void hflag(bool flg) { _hflag = flg; }
-    const ObjectP &hobj() const { return _hobj; }
-    const RoomP &hroom() { return _room; }
-    void hroom(const RoomP &rm) { _room = rm; }
-    const RoomList &hrooms() const { return _hrooms; }
-    RoomList &hrooms() { return _hrooms; }
+    const ObjectP& hobj() const { return _hobj; }
+    const RoomP& hroom() { return _room; }
+    void hroom(const RoomP& rm) { _room = rm; }
+    const RoomList& hrooms() const { return _hrooms; }
+    RoomList& hrooms() { return _hrooms; }
 
-    const ObjList &hobjs_ob() const
-    {
+    const ObjList& hobjs_ob() const {
         return _hobjs_ob;
     }
-    void hobjs(const ObjList &ol)
-    {
+    void hobjs(const ObjList& ol) {
         _hobjs_ob = ol;
     }
 
-    const EventList &hobjs_ev() const
-    {
+    const EventList& hobjs_ev() const {
         return _hobjs_ev;
     }
-    void hobjs(const EventList &el)
-    {
+    void hobjs(const EventList& el) {
         _hobjs_ev = el;
     }
 
-    void hobjs_add(const CEventP &ev)
-    {
+    void hobjs_add(const CEventP& ev) {
         _hobjs_ev.push_front(ev);
     }
 
-    void hobjs_add(const ObjectP &ob)
-    {
+    void hobjs_add(const ObjectP& ob) {
         _hobjs_ob.push_front(ob);
     }
 
@@ -122,8 +112,7 @@ private:
     ObjectP _hobj;
     bool _hflag = false;
 
-    void copy(const hack &s)
-    {
+    void copy(const hack& s) {
         _haction = s._haction;
         _hobjs_ob = s._hobjs_ob;
         _hobjs_ev = s._hobjs_ev;
@@ -137,8 +126,7 @@ private:
 typedef std::shared_ptr<hack> HackP;
 
 // Puzzle room
-struct CpExit
-{
+struct CpExit {
     direction dir;
     int offset;
     constexpr CpExit(direction d, int o) : dir(d), offset(o) {}
@@ -158,15 +146,13 @@ constexpr CpExitV cpexits = {
 // Bank puzzle
 extern RoomP scol_room;
 extern RoomP scol_active;
-struct ScolRooms
-{
+struct ScolRooms {
     direction dir;
     RoomP rm;
 };
 typedef std::vector<ScolRooms> ScolRoomsV;
 
-struct ScolWalls
-{
+struct ScolWalls {
     RoomP rm1;
     ObjectP obj;
     RoomP rm2;
@@ -181,15 +167,14 @@ extern ObjList oppv;
 extern std::vector<int> villain_probs;
 
 extern const ObjList weapons;
-class BestWeapons
-{
+class BestWeapons {
 public:
-    BestWeapons(ObjectP v, ObjectP w, int va) :
-        vill(v), weap(w), val(va) {}
+    BestWeapons(ObjectP v, ObjectP w, int va) : vill(v), weap(w), val(va) {}
 
-    const ObjectP &villain() const { return vill; }
-    const ObjectP &weapon() const { return weap; }
+    const ObjectP& villain() const { return vill; }
+    const ObjectP& weapon() const { return weap; }
     int value() const { return val; }
+
 private:
     ObjectP vill;
     ObjectP weap;
@@ -208,8 +193,7 @@ typedef std::variant<std::monostate, ActionP, VerbP, ObjectP, PhraseP, direction
 typedef std::array<ParseVecVal, 3> ParseVecA;
 typedef std::variant<std::monostate, ActionP, VerbP, ObjectP, PhraseP, direction, WordP, std::string, ObjList> ParseAval;
 
-inline ParseVecVal as_pvv(const ParseAval &pv)
-{
+inline ParseVecVal as_pvv(const ParseAval& pv) {
     ParseVecVal pvv;
     if (auto ap = std::get_if<ActionP>(&pv))
         pvv = *ap;
@@ -226,11 +210,10 @@ inline ParseVecVal as_pvv(const ParseAval &pv)
     return pvv;
 }
 
-inline OrphanSlotType as_ost(ParseVecVal pv)
-{
+inline OrphanSlotType as_ost(ParseVecVal pv) {
     OrphanSlotType ost;
-    ObjectP *op;
-    PhraseP *pp;
+    ObjectP* op;
+    PhraseP* pp;
     if (op = std::get_if<ObjectP>(&pv))
         ost = *op;
     else if (pp = std::get_if<PhraseP>(&pv))
@@ -238,104 +221,92 @@ inline OrphanSlotType as_ost(ParseVecVal pv)
     return ost;
 }
 
-inline direction as_dir(const ParseVecVal &a)
-{
+inline direction as_dir(const ParseVecVal& a) {
     return std::get<direction>(a);
 }
 
-inline ObjectP as_obj(ParseVecVal pvv)
-{
-    ObjectP *op = std::get_if<ObjectP>(&pvv);
+inline ObjectP as_obj(ParseVecVal pvv) {
+    ObjectP* op = std::get_if<ObjectP>(&pvv);
     return op ? *op : ObjectP();
 }
 
-inline WordP as_word(const ParseAval &a)
-{
+inline WordP as_word(const ParseAval& a) {
     return std::get<WordP>(a);
 }
 
-inline VerbP as_verb(const ParseVecVal &a)
-{
-    const VerbP *p = std::get_if<VerbP>(&a);
+inline VerbP as_verb(const ParseVecVal& a) {
+    const VerbP* p = std::get_if<VerbP>(&a);
     return p ? *p : VerbP();
 }
 
 void dir_syns();
 
+/*
+ * SEEMS to just initialise all the variables etc used by the game, and also sets up bindings for user input to function calls
+ */
 void init_dung();
 
 template <typename T>
-void synonym(const char *n1, T n2)
-{
-    const WordP &wp = words_pobl[n1];
+void synonym(const char* n1, T n2) {
+    const WordP& wp = words_pobl[n1];
     _ASSERT(wp);
     words_pobl[n2] = wp;
 }
-template <typename T, typename ...Args>
-void synonym(const char *n1, T first, Args... args)
-{
+template <typename T, typename... Args>
+void synonym(const char* n1, T first, Args... args) {
     synonym(n1, first);
     synonym(n1, args...);
 }
 
-inline void dsynonym(const char *dir, const char *syn)
-{
+inline void dsynonym(const char* dir, const char* syn) {
     auto iter = directions_pobl.find(dir);
     if (iter == directions_pobl.end())
         error("Invalid direction synonym added");
     directions_pobl[syn] = iter->second;
 }
 
-template <typename T, typename ...Args>
-void dsynonym(const char *dir, T first, Args... args)
-{
+template <typename T, typename... Args>
+void dsynonym(const char* dir, T first, Args... args) {
     dsynonym(dir, first);
     dsynonym(dir, args...);
 }
 
 template <typename T>
-void vsynonym(const char *verb, T syn)
-{
+void vsynonym(const char* verb, T syn) {
     actions_pobl[syn] = actions_pobl[verb];
 }
 
-template <typename T, typename ...Args>
-void vsynonym(const char *verb, T first, Args... args)
-{
+template <typename T, typename... Args>
+void vsynonym(const char* verb, T first, Args... args) {
     vsynonym(verb, first);
     vsynonym(verb, args...);
 }
 
 template <typename T>
-void add_zork(SpeechType st, T wc)
-{
+void add_zork(SpeechType st, T wc) {
     // One hack -- remove LOWER from the adjective list so that
-    // it doesn't conflict with the verb LOWER. I don't know why 
+    // it doesn't conflict with the verb LOWER. I don't know why
     // this isn't a problem in the MDL code? I'm guessing because
     // of the different between a STRING and a PSTRING?
     std::string w = wc;
-    if (w != "LOWER")
-    {
+    if (w != "LOWER") {
         words_pobl[w] = make_word(st, wc);
     }
 }
 
-template <typename T, typename ...Args>
-void add_zork(SpeechType st, T first, Args... args)
-{
+template <typename T, typename... Args>
+void add_zork(SpeechType st, T first, Args... args) {
     add_zork(st, first);
     add_zork(st, args...);
 }
 
 template <typename T>
-void add_buzz(T w)
-{
+void add_buzz(T w) {
     add_zork(kBuzz, w);
 }
 
-template <typename T, typename ...Args>
-void add_buzz(T first, Args... args)
-{
+template <typename T, typename... Args>
+void add_buzz(T first, Args... args) {
     add_buzz(first);
     add_buzz(args...);
 }

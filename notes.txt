@@ -1,0 +1,5 @@
+rooms -> do_save() -> saves the game, by calling save_game in sr.cpp, bound in dung.cpp
+readst is called in our main loop (rdcom()) and also, echo_room in act 1
+sr = save/restore
+mr = make room
+roomp = shared pointer<room>
