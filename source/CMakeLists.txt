@@ -1,0 +1,28 @@
+set(ZORK_SOURCE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/act1.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/act2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/act3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/act4.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/adv.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/b.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cevent.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/defs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dung.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/funcs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/globals.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/info.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/makstr.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/mdlfun.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/melee.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/memq.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/object.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/parser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/room.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/roomfns.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rooms.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sr.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/strings.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/zstring.cpp
+PARENT_SCOPE)

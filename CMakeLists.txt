@@ -5,8 +5,17 @@ cmake_policy( VERSION 3.14 )
 project( zork VERSION 1.0.0 )
 
 set( CMAKE_CXX_STANDARD 17 )
+set(BOOST_INCLUDE_LIBRARIES serialization filesystem)
+set(BOOST_ENABLE_CMAKE ON)
 
-find_package(Boost 1.65.0 REQUIRED COMPONENTS serialization filesystem )
+include(FetchContent)
+FetchContent_Declare(
+  Boost
+  GIT_REPOSITORY https://github.com/boostorg/boost.git
+  GIT_TAG boost-1.80.0
+)
+FetchContent_MakeAvailable(Boost)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
@@ -72,6 +81,7 @@ add_executable(zork
 	strings.cpp
 	zstring.cpp )
 
-target_link_libraries(zork ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
+message(STATUS "Libs: ${Boost_LIBRARIES}")
+target_link_libraries(zork Boost::filesystem Boost::serialization ${CMAKE_THREAD_LIBS_INIT} -ldl)
 
 install(TARGETS zork DESTINATION bin)
