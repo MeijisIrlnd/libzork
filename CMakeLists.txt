@@ -31,7 +31,7 @@ find_package(Threads REQUIRED)
 add_subdirectory(source)
 add_library(libzork STATIC ${ZORK_SOURCE})
 target_link_libraries(libzork Boost::filesystem Boost::serialization readerwriterqueue ${CMAKE_THREAD_LIBS_INIT})
-
+target_include_directories(libzork PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/source)
 #[[ add_executable(zork ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp)
 add_dependencies(zork libzork)
 target_include_directories(zork PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source)

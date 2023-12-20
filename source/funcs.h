@@ -27,12 +27,13 @@ void tell_post(uint32_t flags);
 
 template <typename T>
 bool tell_queue(const T& s, uint32_t flags = post_crlf) {
+    ::flags.set(tell_flag);
     std::stringstream stream;
-    if (flags == pre_crlf) {
+    if (flags & pre_crlf) {
         stream << std::endl;
     }
     stream << s;
-    if (flags == post_crlf) {
+    if (flags & post_crlf) {
         stream << std::endl;
     }
     auto res{ false };

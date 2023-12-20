@@ -107,5 +107,10 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "*.ipp": "cpp"
+    },
+    "launch": {
+        "externalConsole": true,
+        "configurations": [],
+        "compounds": []
     }
 }
