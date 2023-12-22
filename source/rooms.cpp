@@ -434,6 +434,9 @@ void print_contents(const ObjList& olst) {
         else if (remain == 2)
             princ(" and ");
     }
+    /* tty << "\n"; */
+    /* tty << */
+    /* tty.flush(); */
 }
 
 void rdcom(Iterator<ParseContV> ivec) {
@@ -1240,6 +1243,7 @@ bool opener() {
                 print_contents(obj->ocontents());
                 princ('.');
                 princ('\n');
+                tty.flush();
             }
         }
     } else {
@@ -1507,7 +1511,6 @@ bool help() {
 
 bool info() {
     tell(info_str);
-    tell("Also, use the TERMINAL command to switch into a terminal emulator\nfor a real 1970's feel!");
     return true;
 }
 

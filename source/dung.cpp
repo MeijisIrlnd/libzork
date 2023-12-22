@@ -562,7 +562,7 @@ namespace {
         sadd_action("YELL", yell);
         sadd_action("ZORK", zork);
 
-        sadd_action("TERMI", terminal);
+        /*sadd_action("TERMI", terminal);*/
 
 #ifdef _DEBUG
         // Displays room bits

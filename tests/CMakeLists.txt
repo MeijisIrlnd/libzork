@@ -1,0 +1,4 @@
+set(ZORK_TEST_SOURCE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/zork_PlayTests.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/zork_TestHelpers.cpp
+PARENT_SCOPE)

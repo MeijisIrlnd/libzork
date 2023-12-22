@@ -5,6 +5,7 @@
 #include <iostream>
 #include <any>
 #include <cstring>
+
 #include <sstream>
 #include <streambuf>
 #include <string_view>
@@ -50,9 +51,10 @@ bool tell_queue(const T& s, uint32_t flags = post_crlf) {
  */
 template <typename T>
 bool tell(const T& s, uint32_t flags = post_crlf) {
-    if (e_useQueue) {
+    /*if (e_useQueue) {
         return tell_queue<T>(s, flags);
-    }
+    }*/
+    ::flags.set(tell_flag);
     tell_pre(flags);
     tty << s;
     tell_post(flags);
@@ -67,8 +69,6 @@ void princ(const T& v) {
 }
 void prin1(int val);
 inline void printstring(std::string_view str) { tty << str; }
-
-bool terminal();
 
 /*
  * reads a string from e_inputQueue (which is a global threadsafe queue)
