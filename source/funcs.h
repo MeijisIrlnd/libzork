@@ -10,7 +10,7 @@
 #include <streambuf>
 #include <string_view>
 #include "ZorkException.h"
-
+#include "globals.h"
 extern std::ostream tty;
 
 // Bits for tell
@@ -28,7 +28,6 @@ void tell_post(uint32_t flags);
 
 template <typename T>
 bool tell_queue(const T& s, uint32_t flags = post_crlf) {
-    ::flags.set(tell_flag);
     std::stringstream stream;
     if (flags & pre_crlf) {
         stream << std::endl;
@@ -54,7 +53,6 @@ bool tell(const T& s, uint32_t flags = post_crlf) {
     /*if (e_useQueue) {
         return tell_queue<T>(s, flags);
     }*/
-    ::flags.set(tell_flag);
     tell_pre(flags);
     tty << s;
     tell_post(flags);
@@ -285,7 +283,7 @@ inline SIterator substruc(SIterator src, int start, int end, SIterator dest) {
 
 inline SIterator substruc(const char* msg, int start, int end, SIterator dest) {
     _ASSERT(start == 0);
-    //#pragma warning(suppress: 26444)
+    // #pragma warning(suppress: 26444)
     std::copy(msg + start, msg + end, dest);
     return dest;
 }
