@@ -46,11 +46,11 @@ add_subdirectory(tests)
 add_library(libzork STATIC ${ZORK_SOURCE})
 target_link_libraries(libzork Boost::filesystem Boost::serialization readerwriterqueue ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(libzork PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/source)
-#[[ add_executable(zork ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp)
+add_executable(zork ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp)
 add_dependencies(zork libzork)
 target_include_directories(zork PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source)
 target_link_libraries(zork libzork)
 
-add_executable(zork-tests ${ZORK_TEST_SOURCE})
-add_dependencies(zork-tests libzork)
-target_link_libraries(zork-tests PRIVATE libzork Catch2::Catch2WithMain) ]]
+# add_executable(zork-tests ${ZORK_TEST_SOURCE})
+# add_dependencies(zork-tests libzork)
+#target_link_libraries(zork-tests PRIVATE libzork Catch2::Catch2WithMain) ]]
