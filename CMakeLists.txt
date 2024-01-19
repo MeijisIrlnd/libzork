@@ -1,26 +1,26 @@
-cmake_minimum_required( VERSION 3.1.0 )
+cmake_minimum_required(VERSION 3.1.0)
 
-cmake_policy( VERSION 3.14 )
+cmake_policy(VERSION 3.14)
 
-project( zork VERSION 1.0.0 )
+project(zork VERSION 1.0.0)
 
-set( CMAKE_CXX_STANDARD 17 )
+set(CMAKE_CXX_STANDARD 17)
 #set(BOOST_INCLUDE_LIBRARIES serialization filesystem)
 #set(BOOST_ENABLE_CMAKE ON)
 
 include(FetchContent)
 
 FetchContent_Declare(
-    readerwriterqueue
-    GIT_REPOSITORY https://github.com/KalideMusic/readerwriterqueue.git
-    GIT_TAG master
+        readerwriterqueue
+        GIT_REPOSITORY https://github.com/KalideMusic/readerwriterqueue.git
+        GIT_TAG master
 )
 FetchContent_MakeAvailable(readerwriterqueue)
 
 FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG        v3.0.1 # or a later release
+        GIT_TAG v3.0.1 # or a later release
         GIT_SHALLOW ON
         FIND_PACKAGE_ARGS 3.0.1 GLOBAL
 )
@@ -34,22 +34,24 @@ FetchContent_MakeAvailable(Catch2)
 add_subdirectory(source)
 add_subdirectory(tests)
 add_library(libzork STATIC ${ZORK_SOURCE})
-if(APPLE)
-    
-else()
-
-target_link_directories(libzork PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/windows)
-endif()
+if (APPLE)
+    set(ZORK_PLATFORM_SPECIFIC_OPTS -w)
+else ()
+    set(ZORK_PLATFORM_SPECIFIC_OPTS /w)
+    set(ZORK_PLATFORM_SPECIFIC_LIBS libboost_filesystem-vc143-mt-x64-1_84 libboost_serialization-vc143-mt-x64-1_84)
+    target_link_directories(libzork PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/windows)
+endif ()
 #target_link_libraries(libzork PUBLIC boost_filesystem.lib boost_serialization.lib readerwriterqueue ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(libzork PUBLIC boost_filesystem.lib boost_serialization.lib readerwriterqueue) 
-target_include_directories(libzork PUBLIC 
-${CMAKE_CURRENT_SOURCE_DIR}/include
-${CMAKE_CURRENT_SOURCE_DIR}/source)
+target_link_libraries(libzork PUBLIC ${ZORK_PLATFORM_SPECIFIC_LIBS} readerwriterqueue)
+target_compile_options(libzork PRIVATE ${ZORK_PLATFORM_SPECIFIC_OPTS})
+target_include_directories(libzork PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source)
 add_executable(zork ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp)
 add_dependencies(zork libzork)
-target_include_directories(zork PRIVATE 
-${CMAKE_CURRENT_SOURCE_DIR}/include
-${CMAKE_CURRENT_SOURCE_DIR}/source)
+target_include_directories(zork PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source)
 target_link_libraries(zork libzork boost_filesystem.lib boost_serialization.lib)
 set(ZORK_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
 
