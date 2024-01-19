@@ -51,6 +51,7 @@ target_include_directories(zork PRIVATE
 ${CMAKE_CURRENT_SOURCE_DIR}/include
 ${CMAKE_CURRENT_SOURCE_DIR}/source)
 target_link_libraries(zork libzork boost_filesystem.lib boost_serialization.lib)
+set(ZORK_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
 
 # add_executable(zork-tests ${ZORK_TEST_SOURCE})
 # add_dependencies(zork-tests libzork)
