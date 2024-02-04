@@ -24,6 +24,12 @@ namespace {
         add_actor(oa_robot, sfind_room("MAGNE"), {}, 0, nullptr, sfind_obj("ROBOT"), actor_funcs::robot_actor, 3);
     }
 
+    void cleanup_actors() {
+        for (auto& a : actors()) {
+            a.reset();
+        }
+    }
+
     std::vector<VerbP> init_actions(const StringList& il) {
         std::vector<VerbP> acts;
         acts.reserve(il.size());
@@ -31,12 +37,21 @@ namespace {
         return acts;
     }
 
+
     void init_robot() {
         robot_actions = init_actions({ "WALK", "TAKE", "DROP", "PUT", "JUMP", "PUSH", "THROW", "TURN" });
     }
 
+    void cleanup_robot() {
+        robot_actions.clear();
+    }
+
     void init_master() {
         master_actions = init_actions({ "TAKE", "DROP", "PUT", "THROW", "PUSH", "TURN", "TRNTO", "SPIN", "FOLLO", "STAY", "OPEN", "CLOSE", "KILL" });
+    }
+
+    void cleanup_master() {
+        master_actions.clear();
     }
 
 } // namespace
@@ -46,6 +61,7 @@ ObjVector bunch_cont() {
     ObjVector ov(8, sfind_obj("#####"));
     return ov;
 }
+
 ObjVector bunuvec_cont;
 Iterator<ObjVector> bunuvec;
 Iterator<ObjVector> bunch;
@@ -194,15 +210,23 @@ namespace {
         };
     }
 
+    void cleanup_bank() {
+        scol_rooms.clear();
+        scol_walls.clear();
+    }
+
     void init_endgame() {
         static const char* num[] = {
             "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT"
         };
         static_assert(sizeof(num) / sizeof(num[0]) == numobjs.size(), "Array sizes do not match");
         int index = 1;
-        std::transform(std::begin(num), std::end(num), numobjs.begin(), [&index](const char* n) {
-            return NumObjs(get_obj(n), index++);
-        });
+        std::transform(std::begin(num),
+                       std::end(num),
+                       numobjs.begin(),
+                       [&index](const char* n) {
+                           return NumObjs(get_obj(n), index++);
+                       });
         // for (int i = 0; i < (int) numobjs.size(); ++i)
         //{
         //     numobjs[i] = NumObjs(get_obj(num[i]), i + 1);
@@ -223,6 +247,7 @@ namespace {
         };
     }
 
+
     void init_object_locs() {
         // A few object locations from dung.mud.
         const RoomP& cp = get_room("CP");
@@ -236,6 +261,10 @@ namespace {
         add_demon(robber_demon = std::make_shared<hack>(robber, ObjList(), rooms(), *rooms().begin(), get_obj("THIEF")));
         add_demon(sword_demon = std::make_shared<hack>(sword_glow, villains, empty_rooms, *rooms().begin(), get_obj("SWORD")));
         add_demon(fight_demon = std::make_shared<hack>(fighting, villains, empty_rooms, *rooms().begin(), get_obj("TROLL")));
+    }
+
+    void cleanup_demons() {
+        demons.clear();
     }
 
 
@@ -289,10 +318,12 @@ namespace {
 
         sadd_action("DEAD!", room_funcs::time);
 
-        add_action("DESTR", "Destroy", ActionVec{
-                                           AnyV{ AL{ -1, reach(), robjs(), aobjs() }, AVSyntax("MUNG", munger), driver() },
-                                           AnyV{ AL{ -1, reach(), robjs(), aobjs() }, "WITH", AL{ -1, aobjs(), take() }, AVSyntax("MUNG", munger) },
-                                       });
+        add_action("DESTR",
+                   "Destroy",
+                   ActionVec{
+                       AnyV{ AL{ -1, reach(), robjs(), aobjs() }, AVSyntax("MUNG", munger), driver() },
+                       AnyV{ AL{ -1, reach(), robjs(), aobjs() }, "WITH", AL{ -1, aobjs(), take() }, AVSyntax("MUNG", munger) },
+                   });
         vsynonym("DESTR", "MUNG", "DAMAG");
 
         sadd_action("DIAGN", diagnose);
@@ -379,15 +410,17 @@ namespace {
 
         add_action("LOCK", "Lock", ActionVec{ AnyV{ AL{ -1, robjs() }, "WITH", AL{ toolbit, aobjs(), robjs(), take() }, AVSyntax("LOCK", locker) } });
 
-        add_action("LOOK", "Look", ActionVec{
-                                       AnyV{ AVSyntax("LOOK", room_desc) },
-                                       AnyV{ "AT", nrobj(), AVSyntax("LKAT", room_desc) },
-                                       AnyV{ "THROU", nrobj(), AVSyntax("LKIN", look_inside) },
-                                       AnyV{ "UNDER", nrobj(), AVSyntax("LKUND", look_under) },
-                                       AnyV{ "IN", nrobj(), AVSyntax("LKIN", look_inside) },
-                                       AnyV{ "AT", nrobj(), "WITH", obj(), AVSyntax("READ", reader) },
-                                       AnyV{ "AT", nrobj(), "THROU", obj(), AVSyntax("READ", reader) },
-                                   });
+        add_action("LOOK",
+                   "Look",
+                   ActionVec{
+                       AnyV{ AVSyntax("LOOK", room_desc) },
+                       AnyV{ "AT", nrobj(), AVSyntax("LKAT", room_desc) },
+                       AnyV{ "THROU", nrobj(), AVSyntax("LKIN", look_inside) },
+                       AnyV{ "UNDER", nrobj(), AVSyntax("LKUND", look_under) },
+                       AnyV{ "IN", nrobj(), AVSyntax("LKIN", look_inside) },
+                       AnyV{ "AT", nrobj(), "WITH", obj(), AVSyntax("READ", reader) },
+                       AnyV{ "AT", nrobj(), "THROU", obj(), AVSyntax("READ", reader) },
+                   });
         vsynonym("LOOK", "L", "STARE", "GAZE");
 
         oneadd_action("LOWER", "Lower", r_l);
@@ -503,13 +536,15 @@ namespace {
 
         add_action("SWING", "Swing", ActionVec{ AnyV{ AL{ weaponbit, aobjs(), have() }, "AT", AL{ villain, reach(), robjs() }, AVSyntax("SWING", swinger) } });
 
-        add_action("TAKE", "Take", ActionVec{
-                                       AnyV{ AL{ std::list<Bits>{ trytakebit, takebit }, reach(), robjs(), aobjs() }, AVSyntax("TAKE", takefn), driver() },
-                                       AnyV{ "IN", AL{ vehbit, robjs(), reach() }, AVSyntax("BOARD", board) },
-                                       AnyV{ "OUT", AL{ vehbit, robjs(), reach() }, AVSyntax("DISEM", unboard) },
-                                       AnyV{ AL{ std::list<Bits>{ takebit, trytakebit }, reach(), robjs(), aobjs() }, "OUT", obj(), AVSyntax("TAKE", takefn) },
-                                       AnyV{ AL{ std::list<Bits>{ takebit, trytakebit }, reach(), robjs(), aobjs() }, "FROM", obj(), AVSyntax("TAKE", takefn) },
-                                   });
+        add_action("TAKE",
+                   "Take",
+                   ActionVec{
+                       AnyV{ AL{ std::list<Bits>{ trytakebit, takebit }, reach(), robjs(), aobjs() }, AVSyntax("TAKE", takefn), driver() },
+                       AnyV{ "IN", AL{ vehbit, robjs(), reach() }, AVSyntax("BOARD", board) },
+                       AnyV{ "OUT", AL{ vehbit, robjs(), reach() }, AVSyntax("DISEM", unboard) },
+                       AnyV{ AL{ std::list<Bits>{ takebit, trytakebit }, reach(), robjs(), aobjs() }, "OUT", obj(), AVSyntax("TAKE", takefn) },
+                       AnyV{ AL{ std::list<Bits>{ takebit, trytakebit }, reach(), robjs(), aobjs() }, "FROM", obj(), AVSyntax("TAKE", takefn) },
+                   });
         vsynonym("TAKE", "REMOV", "GET", "HOLD", "CARRY");
 
         add_action("TELL", "Tell", ActionVec{ AnyV{ AL{ actorbit, robjs() }, AVSyntax("TELL", command) } });
@@ -517,11 +552,13 @@ namespace {
 
         sadd_action("TEMPL", treas);
 
-        add_action("THROW", "Throw", ActionVec{
-                                         AnyV{ AL{ -1, aobjs(), have() }, "AT", AL{ vicbit, reach(), robjs() }, AVSyntax("THROW", dropper), driver() },
-                                         AnyV{ AL{ -1, aobjs(), have() }, "THROU", AL{ vicbit, reach(), robjs() }, AVSyntax("THROW", dropper) },
-                                         AnyV{ AL{ -1, aobjs(), have() }, "IN", obj(), AVSyntax("PUT", putter) },
-                                     });
+        add_action("THROW",
+                   "Throw",
+                   ActionVec{
+                       AnyV{ AL{ -1, aobjs(), have() }, "AT", AL{ vicbit, reach(), robjs() }, AVSyntax("THROW", dropper), driver() },
+                       AnyV{ AL{ -1, aobjs(), have() }, "THROU", AL{ vicbit, reach(), robjs() }, AVSyntax("THROW", dropper) },
+                       AnyV{ AL{ -1, aobjs(), have() }, "IN", obj(), AVSyntax("PUT", putter) },
+                   });
         vsynonym("THROW", "HURL", "CHUCK");
 
         add_action("TIE", "Tie", ActionVec{ AnyV{ obj(), "TO", obj(), AVSyntax("TIE", tie) }, AnyV{ "UP", AL{ vicbit, reach(), robjs() }, "WITH", AL{ toolbit, reach(), robjs(), aobjs(), have() }, AVSyntax("TIEUP", tie_up) } });
@@ -566,86 +603,91 @@ namespace {
 
 #ifdef _DEBUG
         // Displays room bits
-        sadd_action("RBITS", [] {
-            if (!bit_info(here)) {
-                tell("No bit information available.");
-            } else {
-                flags[tell_flag] = true;
-            }
-            return true;
-        });
+        sadd_action("RBITS",
+                    [] {
+                        if (!bit_info(here)) {
+                            tell("No bit information available.");
+                        } else {
+                            flags[tell_flag] = true;
+                        }
+                        return true;
+                    });
 
         // Handy function to locate any object.
-        sadd_action("LOCAT", [] {
-            std::string obj;
-            std::cout << "Locate what? ";
-            std::cin >> obj;
-            std::transform(obj.begin(), obj.end(), obj.begin(), toupper);
-            obj = obj.substr(0, 5);
-            if (is_obj(obj)) {
-                ObjectP objp = find_obj(obj);
-                if (objp->oroom()) {
-                    tell("The " + objp->odesc2() + " is in " + objp->oroom()->rid());
-                } else if (memq(objp, player()->aobjs())) {
-                    tell("You're holding it, dummy.");
-                } else {
-                    tell("The " + objp->odesc2() + " is nowhere.");
-                }
-            } else {
-                tell("Unknown object");
-            }
+        sadd_action("LOCAT",
+                    [] {
+                        std::string obj;
+                        std::cout << "Locate what? ";
+                        std::cin >> obj;
+                        std::transform(obj.begin(), obj.end(), obj.begin(), toupper);
+                        obj = obj.substr(0, 5);
+                        if (is_obj(obj)) {
+                            ObjectP objp = find_obj(obj);
+                            if (objp->oroom()) {
+                                tell("The " + objp->odesc2() + " is in " + objp->oroom()->rid());
+                            } else if (memq(objp, player()->aobjs())) {
+                                tell("You're holding it, dummy.");
+                            } else {
+                                tell("The " + objp->odesc2() + " is nowhere.");
+                            }
+                        } else {
+                            tell("Unknown object");
+                        }
 
-            return true;
-        });
+                        return true;
+                    });
 
         // Function to list all treasures and their locations.
-        sadd_action("LISTT", [] {
-            auto& op = object_pobl();
-            std::set<ObjectP> dups;
-            for (auto o : op) {
-                ObjectP obj = *o.second.begin();
-                if (obj->otval() > 0) {
-                    if (dups.find(obj) == dups.end()) {
-                        std::string loc;
-                        if (obj->oroom())
-                            loc = obj->oroom()->rid();
-                        else if (obj->ocan())
-                            loc = obj->ocan()->oid();
-                        else
-                            loc = "unknown";
-                        tell("Obj " + obj->odesc2() + " is in " + loc);
-                        dups.insert(obj);
-                    }
-                }
-            }
-            return true;
-        });
+        sadd_action("LISTT",
+                    [] {
+                        auto& op = object_pobl();
+                        std::set<ObjectP> dups;
+                        for (auto o : op) {
+                            ObjectP obj = *o.second.begin();
+                            if (obj->otval() > 0) {
+                                if (dups.find(obj) == dups.end()) {
+                                    std::string loc;
+                                    if (obj->oroom()) loc = obj->oroom()->rid();
+                                    else if (obj->ocan()) loc = obj->ocan()->oid();
+                                    else loc = "unknown";
+                                    tell("Obj " + obj->odesc2() + " is in " + loc);
+                                    dups.insert(obj);
+                                }
+                            }
+                        }
+                        return true;
+                    });
 
         sadd_action("RMID", []() { return tell("Room: " + here->rid()); });
 
         // Function to display where the thief is, and is going to be, for debugging.
-        sadd_action("WT", []() {
-            // Print the room the thief is in, and the next two rooms he will be in.
-            RoomList& rl = robber_demon->hrooms();
-            auto iter = rl.begin();
+        sadd_action("WT",
+                    []() {
+                        // Print the room the thief is in, and the next two rooms he will be in.
+                        RoomList& rl = robber_demon->hrooms();
+                        auto iter = rl.begin();
 
-            tell("Cur: " + (*iter)->rid());
-            for (int i = 0; i < 2; ++i) {
-                while (iter != rl.end()) {
-                    if (rtrnn(*iter, rsacredbit) || rtrnn(*iter, rendgame) || !rtrnn(*iter, rlandbit)) {
-                        ++iter;
-                    } else {
-                        break;
-                    }
-                }
-                if (iter != rl.end()) {
-                    tell("Next: " + (*iter)->rid());
-                    ++iter;
-                }
-            }
-            return true;
-        });
+                        tell("Cur: " + (*iter)->rid());
+                        for (int i = 0; i < 2; ++i) {
+                            while (iter != rl.end()) {
+                                if (rtrnn(*iter, rsacredbit) || rtrnn(*iter, rendgame) || !rtrnn(*iter, rlandbit)) {
+                                    ++iter;
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (iter != rl.end()) {
+                                tell("Next: " + (*iter)->rid());
+                                ++iter;
+                            }
+                        }
+                        return true;
+                    });
 #endif
+    }
+
+    void cleanup_actions() {
+        actions_pobl.clear();
     }
 #if _MSC_FULL_VER == 192227812
 #pragma optimize("", on)
@@ -667,6 +709,11 @@ namespace {
         add_question("In which room is 'Hello Sailor!' useful?", { "NONE", "NOWHE" });
     }
 
+    void cleanup_questions() {
+        inqobjs.clear();
+        qvec.clear();
+    }
+
 } // namespace
 
 void dir_syns() {
@@ -685,6 +732,10 @@ void dir_syns() {
     }
 
     dsynonym("EXIT", "OUT", "LEAVE");
+}
+
+void cleanup_words() {
+    words_pobl.clear();
 }
 
 void init_dung() {
@@ -727,3 +778,21 @@ void init_dung() {
 
     init_questions();
 }
+
+void cleanup_dung() {
+    cleanup_questions();
+    cleanup_bunchers();
+    cleanup_master();
+    cleanup_robot();
+    cleanup_actions();
+    cleanup_words();
+    // endgame??
+    cleanup_bank();
+    //puzzle rooms?
+    //object locs?
+    cleanup_demons();
+    cleanup_actors();
+    cleanup_objects();
+    cleanup_gobjects();
+}
+

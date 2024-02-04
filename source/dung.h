@@ -58,7 +58,13 @@ class hack {
     typedef std::variant<CEventP, ObjectP> HobjsValue;
 
 public:
-    hack(hackfn ha, const ObjList& ho, const RoomList& hr, const RoomP& rm, const ObjectP& obj) : _haction(ha), _room(rm), _hobj(obj), _hobjs_ob(ho), _hrooms(hr), _hflag(false) {
+    hack(hackfn ha, const ObjList& ho, const RoomList& hr, const RoomP& rm, const ObjectP& obj)
+        : _haction(ha),
+          _room(rm),
+          _hobj(obj),
+          _hobjs_ob(ho),
+          _hrooms(hr),
+          _hflag(false) {
     }
 
     hack(const hack& h) {
@@ -84,6 +90,7 @@ public:
     const ObjList& hobjs_ob() const {
         return _hobjs_ob;
     }
+
     void hobjs(const ObjList& ol) {
         _hobjs_ob = ol;
     }
@@ -91,6 +98,7 @@ public:
     const EventList& hobjs_ev() const {
         return _hobjs_ev;
     }
+
     void hobjs(const EventList& el) {
         _hobjs_ev = el;
     }
@@ -129,8 +137,13 @@ typedef std::shared_ptr<hack> HackP;
 struct CpExit {
     direction dir;
     int offset;
-    constexpr CpExit(direction d, int o) : dir(d), offset(o) {}
+
+    constexpr CpExit(direction d, int o)
+        : dir(d),
+          offset(o) {
+    }
 };
+
 typedef std::array<CpExit, 8> CpExitV;
 constexpr CpExitV cpexits = {
     CpExit(North, -8),
@@ -146,10 +159,12 @@ constexpr CpExitV cpexits = {
 // Bank puzzle
 extern RoomP scol_room;
 extern RoomP scol_active;
+
 struct ScolRooms {
     direction dir;
     RoomP rm;
 };
+
 typedef std::vector<ScolRooms> ScolRoomsV;
 
 struct ScolWalls {
@@ -157,6 +172,7 @@ struct ScolWalls {
     ObjectP obj;
     RoomP rm2;
 };
+
 typedef std::vector<ScolWalls> ScolWallsV;
 
 extern ScolRoomsV scol_rooms;
@@ -167,9 +183,14 @@ extern ObjList oppv;
 extern std::vector<int> villain_probs;
 
 extern const ObjList weapons;
+
 class BestWeapons {
 public:
-    BestWeapons(ObjectP v, ObjectP w, int va) : vill(v), weap(w), val(va) {}
+    BestWeapons(ObjectP v, ObjectP w, int va)
+        : vill(v),
+          weap(w),
+          val(va) {
+    }
 
     const ObjectP& villain() const { return vill; }
     const ObjectP& weapon() const { return weap; }
@@ -180,6 +201,7 @@ private:
     ObjectP weap;
     int val;
 };
+
 typedef std::shared_ptr<BestWeapons> BestWeaponsP;
 typedef std::vector<BestWeaponsP> BestWeaponsList;
 extern const BestWeaponsList best_weapons;
@@ -195,18 +217,12 @@ typedef std::variant<std::monostate, ActionP, VerbP, ObjectP, PhraseP, direction
 
 inline ParseVecVal as_pvv(const ParseAval& pv) {
     ParseVecVal pvv;
-    if (auto ap = std::get_if<ActionP>(&pv))
-        pvv = *ap;
-    else if (auto vp = std::get_if<VerbP>(&pv))
-        pvv = *vp;
-    else if (auto op = std::get_if<ObjectP>(&pv))
-        pvv = *op;
-    else if (auto pp = std::get_if<PhraseP>(&pv))
-        pvv = *pp;
-    else if (auto dp = std::get_if<direction>(&pv))
-        pvv = *dp;
-    else
-        error("Invalid parse vector value");
+    if (auto ap = std::get_if<ActionP>(&pv)) pvv = *ap;
+    else if (auto vp = std::get_if<VerbP>(&pv)) pvv = *vp;
+    else if (auto op = std::get_if<ObjectP>(&pv)) pvv = *op;
+    else if (auto pp = std::get_if<PhraseP>(&pv)) pvv = *pp;
+    else if (auto dp = std::get_if<direction>(&pv)) pvv = *dp;
+    else error("Invalid parse vector value");
     return pvv;
 }
 
@@ -214,10 +230,8 @@ inline OrphanSlotType as_ost(ParseVecVal pv) {
     OrphanSlotType ost;
     ObjectP* op;
     PhraseP* pp;
-    if (op = std::get_if<ObjectP>(&pv))
-        ost = *op;
-    else if (pp = std::get_if<PhraseP>(&pv))
-        ost = *pp;
+    if (op = std::get_if<ObjectP>(&pv)) ost = *op;
+    else if (pp = std::get_if<PhraseP>(&pv)) ost = *pp;
     return ost;
 }
 
@@ -245,6 +259,7 @@ void dir_syns();
  * SEEMS to just initialise all the variables etc used by the game, and also sets up bindings for user input to function calls
  */
 void init_dung();
+void cleanup_dung();
 
 template <typename T>
 void synonym(const char* n1, T n2) {
@@ -252,6 +267,7 @@ void synonym(const char* n1, T n2) {
     _ASSERT(wp);
     words_pobl[n2] = wp;
 }
+
 template <typename T, typename... Args>
 void synonym(const char* n1, T first, Args... args) {
     synonym(n1, first);
@@ -260,8 +276,7 @@ void synonym(const char* n1, T first, Args... args) {
 
 inline void dsynonym(const char* dir, const char* syn) {
     auto iter = directions_pobl.find(dir);
-    if (iter == directions_pobl.end())
-        error("Invalid direction synonym added");
+    if (iter == directions_pobl.end()) error("Invalid direction synonym added");
     directions_pobl[syn] = iter->second;
 }
 

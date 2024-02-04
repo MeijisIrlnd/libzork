@@ -26,4 +26,8 @@ namespace Zork {
         }
         return restart;
     }
+
+    void cleanupZork() {
+        cleanup_dung();
+    }
 } // namespace Zork
